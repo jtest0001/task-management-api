@@ -1,4 +1,5 @@
 import express from "express"
+import { config } from "./common/config/config"
 
 export const createApp = () => {
   // Create app instance
@@ -17,8 +18,9 @@ export const createApp = () => {
   // app.use(requestLogger);
 
   // Routes
-  // app.use("/api/auth", authRoutes);
-  // app.use("/api/tasks", taskRoutes);
+  app.get("/health", (_req, res) => {
+    res.json({ message: `Server is up and running on port ${config.server.port}` })
+  })
 
   // 404 handler
 
