@@ -1,5 +1,6 @@
 import express from "express"
 import { config } from "./common/config/config"
+import authRouter from "./modules/auth/auth.module"
 
 export const createApp = () => {
   // Create app instance
@@ -21,6 +22,7 @@ export const createApp = () => {
   app.get("/health", (_req, res) => {
     res.json({ message: `Server is up and running on port ${config.server.port}` })
   })
+  app.use("/auth", authRouter)
 
   // 404 handler
 
