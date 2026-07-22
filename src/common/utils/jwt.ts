@@ -29,7 +29,11 @@ export const generateAccessToken = (userId: string) => {
 }
 
 export const verifyAccessToken = (token: string) => {
-  return jwt.verify(token, config.jwt.accessSecret) as AccessTokenPayload
+  try {
+    return jwt.verify(token, config.jwt.accessSecret) as AccessTokenPayload
+  } catch {
+    throw new UnauthorizedError()
+  }
 }
 
 export const generateRefreshToken = (payload: RefreshTokenPayload) => {
@@ -45,5 +49,9 @@ export const generateRefreshToken = (payload: RefreshTokenPayload) => {
 }
 
 export const verifyRefreshToken = (token: string) => {
-  return jwt.verify(token, config.jwt.refreshSecret) as RefreshTokenPayload
+  try {
+    return jwt.verify(token, config.jwt.refreshSecret) as RefreshTokenPayload
+  } catch {
+    throw new UnauthorizedError()
+  }
 }

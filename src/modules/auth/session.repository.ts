@@ -10,7 +10,15 @@ interface SessionData {
 export class SessionRepository {
   constructor(private readonly db: PrismaClient) {}
 
-  create = async (data: SessionData) => {
+  findById = async (id: string) => {
+    return this.db.session.findUnique({ where: { id } })
+  }
+
+  createSession = async (data: SessionData) => {
     return this.db.session.create({ data })
+  }
+
+  updateSession = async (data: SessionData) => {
+    return this.db.session.update({ where: { id: data.id }, data })
   }
 }

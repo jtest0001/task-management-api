@@ -3,6 +3,9 @@ import { RegisterDto } from "./validators/register.schema"
 
 export class AuthRepository {
   constructor(private readonly db: PrismaClient) {}
+  findById = (id: string) => {
+    return this.db.user.findUnique({ where: { id } })
+  }
 
   findByEmail = (email: string) => {
     return this.db.user.findUnique({ where: { email } })
