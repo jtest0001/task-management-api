@@ -1,6 +1,7 @@
 import express from "express"
-import { config } from "./common/config/config"
+import { config } from "./common/config"
 import authRouter from "./modules/auth/auth.module"
+import { globalErrorHandler } from "./common/middleware/error.middleware"
 
 export const createApp = () => {
   // Create app instance
@@ -9,25 +10,14 @@ export const createApp = () => {
   // middlewares
   app.use(express.json())
 
-  // Security middleware
-  // app.use(helmet());
-
-  // CORS
-  // app.use(cors());
-
-  // Logging middleware
-  // app.use(requestLogger);
-
   // Routes
   app.get("/health", (_req, res) => {
     res.json({ message: `Server is up and running on port ${config.server.port}` })
   })
   app.use("/auth", authRouter)
 
-  // 404 handler
+  // Global error middleware
+  app.use(globalErrorHandler)
 
-  // Global error handler
-
-  // Graceful shutdown
   return app
 }
