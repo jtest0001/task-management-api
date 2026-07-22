@@ -1,13 +1,18 @@
+import { randomUUID } from "node:crypto"
 import { ConflictError } from "../../common/errors"
-import { UnauthorizedError } from "../../common/errors/unauthorized.error"
-import { generateAccessToken } from "../../common/utils/jwt"
+import { UnauthorizedError } from "../../common/errors"
+import { generateAccessToken, generateRefreshToken } from "../../common/utils/jwt"
 import { comparePasswords, hashPassword } from "../../common/utils/password"
 import { AuthRepository } from "./auth.repository"
 import { LoginDto } from "./validators/login.schema"
 import { RegisterDto } from "./validators/register.schema"
+import { SessionRepository } from "./session.repository"
 
 export class AuthService {
-  constructor(private readonly authRepository: AuthRepository) {}
+  constructor(
+    private readonly authRepository: AuthRepository,
+    private readonly sessionRepository: SessionRepository
+  ) {}
 
   register = async (dto: RegisterDto) => {
     // Check if existing user
@@ -38,12 +43,29 @@ export class AuthService {
     // Create access token
     const accessToken = generateAccessToken(existingUser.id)
 
+    // Create refresh token
+    const sessionId = randomUUID()
+    const refreshToken = generateRefreshToken({
+      sub: existingUser.id,
+      sid: sessionId
+    })
+
+    // Create session
+    const hashedRefreshToken = await hashPassword(refreshToken)
+    await this.sessionRepository.create({
+      id: sessionId,
+      hashedRefreshToken,
+      userId: existingUser.id,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+    })
+
     return {
       user: {
         id: existingUser.id,
         email: existingUser.email
       },
-      accessToken
+      accessToken,
+      refreshToken
     }
   }
 }
