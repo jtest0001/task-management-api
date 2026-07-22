@@ -1,13 +1,11 @@
 import { randomUUID } from "node:crypto"
-import { ConflictError } from "../../common/errors"
-import { UnauthorizedError } from "../../common/errors"
+import { ConflictError, UnauthorizedError } from "../../common/errors"
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../common/utils/jwt"
 import { comparePasswords, hashPassword } from "../../common/utils/password"
 import { AuthRepository } from "./auth.repository"
 import { LoginDto } from "./validators/login.schema"
 import { RegisterDto } from "./validators/register.schema"
 import { SessionRepository } from "./session.repository"
-import { access } from "node:fs"
 
 export class AuthService {
   constructor(
@@ -82,12 +80,22 @@ export class AuthService {
   }
 
   refresh = async (token: string) => {
-    // Check if valid token
-    const tokenPayload = verifyRefreshToken(token)
-    if (!tokenPayload) throw new UnauthorizedError()
+    // Check if session exists
+    const { sub, sid } = verifyRefreshToken(token)
+    const session = await this.sessionRepository.findById(sid)
+    if (!session) throw new UnauthorizedError()
+
+    // Check if tokens match
+    const isTokenValid = await comparePasswords(token, session.hashedRefreshToken)
+    if (!isTokenValid) throw new UnauthorizedError()
+
+    // Check if session is expired
+    if (session.expiresAt < new Date()) {
+      await this.sessionRepository.deleteById(session.id)
+      throw new UnauthorizedError()
+    }
 
     // Generate new tokens
-    const { sub, sid } = tokenPayload
     const accessToken = generateAccessToken(sub)
     const refreshToken = generateRefreshToken({
       sub,

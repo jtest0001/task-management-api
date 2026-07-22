@@ -21,4 +21,8 @@ export class SessionRepository {
   updateSession = async (data: SessionData) => {
     return this.db.session.update({ where: { id: data.id }, data })
   }
+
+  deleteById = async (id: string) => {
+    return this.db.session.delete({ where: { id } })
+  }
 }

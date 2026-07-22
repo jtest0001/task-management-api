@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken"
 import { config } from "../config"
 import { UnauthorizedError } from "../errors"
-import { access } from "node:fs"
 
 interface AccessTokenPayload {
   sub: string
