@@ -1,6 +1,6 @@
 import "dotenv/config"
 import { createApp } from "./app"
-import { config } from "./common/config"
+import { config } from "./common/config/env.config"
 import { logger } from "./common/logger"
 import { prisma } from "./common/database/prisma"
 
