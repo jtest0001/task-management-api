@@ -13,7 +13,11 @@ const loadConfig = () => {
     },
     jwt: {
       accessSecret: env.JWT_ACCESS_SECRET,
-      refreshSecret: env.JWT_REFRESH_SECRET
+      refreshSecret: env.JWT_REFRESH_SECRET,
+      refreshCookieName: env.REFRESH_TOKEN_COOKIE_NAME
+    },
+    client: {
+      url: env.FRONT_END_URL
     }
   })
 }

@@ -79,29 +79,39 @@ export class AuthService {
     }
   }
 
-  refresh = async (token: string) => {
+  refresh = async (refreshToken: string) => {
     // Check if session exists
-    const { sub, sid } = verifyRefreshToken(token)
+    const { sub, sid } = verifyRefreshToken(refreshToken)
     const session = await this.sessionRepository.findById(sid)
     if (!session) throw new UnauthorizedError()
 
-    // Check if tokens match
-    const isTokenValid = await comparePasswords(token, session.hashedRefreshToken)
-    if (!isTokenValid) throw new UnauthorizedError()
-
     // Check if session is expired
     if (session.expiresAt < new Date()) {
-      await this.sessionRepository.deleteById(session.id)
+      await this.sessionRepository.deleteBySessionId(session.id)
+      throw new UnauthorizedError()
+    }
+
+    // Check if user exists
+    const user = await this.authRepository.findById(sub)
+    if (!user) {
+      await this.sessionRepository.deleteBySessionId(session.id)
+      throw new UnauthorizedError()
+    }
+
+    // Check if tokens match
+    const isTokenValid = await comparePasswords(refreshToken, session.hashedRefreshToken)
+    if (!isTokenValid) {
+      await this.sessionRepository.deleteBySessionId(session.id)
       throw new UnauthorizedError()
     }
 
     // Generate new tokens
-    const accessToken = generateAccessToken(sub)
-    const refreshToken = generateRefreshToken({
-      sub,
+    const accessToken = generateAccessToken(user.id)
+    const newRefreshToken = generateRefreshToken({
+      sub: user.id,
       sid
     })
-    const hashedRefreshToken = await hashPassword(refreshToken)
+    const hashedRefreshToken = await hashPassword(newRefreshToken)
 
     // Update session
     await this.sessionRepository.updateSession({
@@ -113,7 +123,21 @@ export class AuthService {
 
     return {
       accessToken,
-      refreshToken
+      refreshToken: newRefreshToken
     }
+  }
+
+  logout = async (refreshToken: string) => {
+    try {
+      const { sid } = verifyRefreshToken(refreshToken)
+      await this.sessionRepository.deleteBySessionId(sid)
+    } catch {}
+  }
+
+  logoutAll = async (refreshToken: string) => {
+    try {
+      const { sub } = verifyRefreshToken(refreshToken)
+      await this.sessionRepository.deleteByUserId(sub)
+    } catch {}
   }
 }

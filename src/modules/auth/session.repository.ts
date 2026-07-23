@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client"
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
+import { ConflictError } from "../../common/errors"
 
 interface SessionData {
   id: string
@@ -15,14 +17,27 @@ export class SessionRepository {
   }
 
   createSession = async (data: SessionData) => {
-    return this.db.session.create({ data })
+    try {
+      const session = await this.db.session.create({ data })
+      return session
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new ConflictError("Session already exists")
+      }
+
+      throw error
+    }
   }
 
   updateSession = async (data: SessionData) => {
     return this.db.session.update({ where: { id: data.id }, data })
   }
 
-  deleteById = async (id: string) => {
-    return this.db.session.delete({ where: { id } })
+  deleteBySessionId = async (sessionId: string) => {
+    return this.db.session.delete({ where: { id: sessionId } })
+  }
+
+  deleteByUserId = async (userId: string) => {
+    return this.db.session.deleteMany({ where: { userId } })
   }
 }

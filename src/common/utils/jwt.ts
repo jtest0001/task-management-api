@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import { config } from "../config"
+import { config } from "../config/env.config"
 import { UnauthorizedError } from "../errors"
 
 interface AccessTokenPayload {
