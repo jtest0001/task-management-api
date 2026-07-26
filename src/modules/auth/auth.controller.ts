@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { config } from "../../common/config/env.config"
-import { refreshTokenCookieOptions } from "../../common/config/http.config"
+import { refreshTokenCookieOptions } from "../../common/config/cookie.config"
 import { UnauthorizedError } from "../../common/errors"
 import { AuthService } from "./auth.service"
 import { LoginDto } from "./validators/login.schema"

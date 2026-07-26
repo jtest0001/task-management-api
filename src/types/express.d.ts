@@ -1,4 +1,6 @@
 import "express"
+import { Logger } from "pino"
+import { HttpLogger } from "pino-http"
 
 declare global {
   namespace Express {
@@ -11,6 +13,8 @@ declare global {
       user?: {
         id: string
       }
+      requestId: string
+      logger: HttpLogger
     }
   }
 }
