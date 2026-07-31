@@ -5,6 +5,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 
 export class AuthRepository {
   constructor(private readonly db: PrismaClient) {}
+
   findById = (id: string) => {
     return this.db.user.findUnique({ where: { id } })
   }

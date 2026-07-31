@@ -14,24 +14,146 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  sessions  Session[]
+  id                 String          @id @default(uuid()) @db.Uuid
+  email              String          @unique
+  password           String
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  deletedAt          DateTime?
+  sessions           Session[]       @relation("UserSessions")
+  ownedProjects      Project[]       @relation("UserProjectsOwned")
+  projectMemberships ProjectMember[] @relation("UserProjectMemberships")
+  comments           Comment[]       @relation("UserComments")
+  createdTasks       Task[]          @relation("UserCreatedTasks")
+  assignedTasks      Task[]          @relation("UserAssignedTasks")
 }
 
 model Session {
-  id                 String   @id @default(uuid())
+  id                 String   @id @default(uuid()) @db.Uuid
   hashedRefreshToken String
   userId             String
   expiresAt          DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("UserSessions", fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+}
+
+model Project {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  ownerId     String    @db.Uuid
+
+  owner   User            @relation("UserProjectsOwned", fields: [ownerId], references: [id])
+  members ProjectMember[] @relation("ProjectMembers")
+  labels  Label[]         @relation("ProjectLabels")
+  tasks   Task[]          @relation("ProjectTasks")
+
+  @@unique([name, ownerId])
+  @@index([ownerId])
+}
+
+enum ProjectRole {
+  ADMIN
+  MEMBER
+  OWNER
+}
+
+model ProjectMember {
+  userId    String      @db.Uuid
+  projectId String      @db.Uuid
+  role      ProjectRole @default(MEMBER)
+  joinedAt  DateTime    @default(now())
+
+  project Project @relation("ProjectMembers", fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation("UserProjectMemberships", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
+  @@index([projectId])
+}
+
+model Comment {
+  id        String    @id @default(uuid()) @db.Uuid
+  content   String
+  authorId  String    @db.Uuid
+  taskId    String    @db.Uuid
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  author User @relation("UserComments", fields: [authorId], references: [id])
+  task   Task @relation("TaskComments", fields: [taskId], references: [id])
+
+  @@index([taskId])
+  @@index([authorId])
+}
+
+model Label {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  color     String
+  projectId String   @db.Uuid
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  project Project     @relation("ProjectLabels", fields: [projectId], references: [id])
+  tasks   TaskLabel[] @relation("LabelTasks")
+
+  @@unique([projectId, name])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Task {
+  id          String       @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  projectId   String       @db.Uuid
+  assigneeId  String?      @db.Uuid
+  createdById String       @db.Uuid
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  dueDate     DateTime?
+
+  createdBy User        @relation("UserCreatedTasks", fields: [createdById], references: [id])
+  assignee  User?       @relation("UserAssignedTasks", fields: [assigneeId], references: [id], onDelete: SetNull)
+  project   Project     @relation("ProjectTasks", fields: [projectId], references: [id])
+  labels    TaskLabel[] @relation("TaskLabels")
+  comments  Comment[]   @relation("TaskComments")
+
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([createdById])
+}
+
+model TaskLabel {
+  taskId  String @db.Uuid
+  labelId String @db.Uuid
+
+  task  Task  @relation("TaskLabels", fields: [taskId], references: [id], onDelete: Cascade)
+  label Label @relation("LabelTasks", fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, labelId])
+  @@index([labelId])
 }

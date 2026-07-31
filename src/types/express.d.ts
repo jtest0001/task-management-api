@@ -1,4 +1,5 @@
 import "express"
+import { Logger } from "pino"
 
 declare global {
   namespace Express {
@@ -11,6 +12,8 @@ declare global {
       user?: {
         id: string
       }
+      requestId: string
+      logger: Logger
     }
   }
 }

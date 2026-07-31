@@ -3,7 +3,9 @@ import express from "express"
 import { corsConfig } from "./common/config/cors.config"
 import { config } from "./common/config/env.config"
 import { globalErrorHandler } from "./common/middleware/error.middleware"
-import authRouter from "./modules/auth/auth.module"
+import { requestIdMiddleware } from "./common/middleware/request-id.middleware"
+import { authRouter } from "./modules/auth/auth.module"
+import { httpLoggerMiddleware } from "./common/middleware/http-logger.middleware"
 
 export const createApp = () => {
   // Create app instance
@@ -11,6 +13,8 @@ export const createApp = () => {
 
   // middlewares
   app.use(corsConfig)
+  app.use(requestIdMiddleware)
+  app.use(httpLoggerMiddleware)
   app.use(express.json())
   app.use(cookieParser())
 

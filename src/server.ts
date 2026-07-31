@@ -14,26 +14,29 @@ async function bootstrap() {
 
     // Start HTTP server
     const server = app.listen(config.server.port, () => {
-      logger.info(`Server running on port ${config.server.port}`)
+      logger.info({ port: config.server.port }, "Server started")
     })
 
     // Register graceful shutdown
-    process.on("SIGTERM", async () => {
-      logger.info("SIGTERM received")
+    const shutdown = (signal: string) => {
+      logger.info({ signal }, "Received shutdown signal")
 
-      server.close(async () => {
-        await prisma.$disconnect()
-        process.exit(0)
+      server.close(() => {
+        prisma
+          .$disconnect()
+          .then(() => {
+            logger.info("Disconnected from database")
+            process.exit(0)
+          })
+          .catch((err) => {
+            logger.error(err, "Failed to disconnect Prisma")
+            process.exit(1)
+          })
       })
-    })
-    process.on("SIGINT", async () => {
-      logger.info("SIGINT received")
+    }
 
-      server.close(async () => {
-        await prisma.$disconnect()
-        process.exit(0)
-      })
-    })
+    process.on("SIGTERM", () => shutdown("SIGTERM"))
+    process.on("SIGINT", () => shutdown("SIGINT"))
   } catch (error) {
     logger.error(error)
     process.exit(1)
