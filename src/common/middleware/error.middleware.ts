@@ -1,10 +1,13 @@
 import { ErrorRequestHandler } from "express"
 import { AppError } from "../errors"
 import { ZodError } from "zod"
+import { logger } from "../logger"
 
 export const globalErrorHandler: ErrorRequestHandler = (error, req, res, _next) => {
+  const reqLogger = req.logger ?? logger
+
   if (error instanceof AppError) {
-    req.logger.error({
+    reqLogger.error({
       statusCode: error.statusCode,
       message: error.message
     })
@@ -15,7 +18,7 @@ export const globalErrorHandler: ErrorRequestHandler = (error, req, res, _next) 
   }
 
   if (error instanceof ZodError) {
-    req.logger.error({
+    reqLogger.error({
       statusCode: 400,
       message: "Validation failed",
       errors: error.flatten().fieldErrors
@@ -27,7 +30,7 @@ export const globalErrorHandler: ErrorRequestHandler = (error, req, res, _next) 
     })
   }
 
-  req.logger.error(error)
+  reqLogger.error(error)
   res.status(500).json({
     message: "Internal server error"
   })

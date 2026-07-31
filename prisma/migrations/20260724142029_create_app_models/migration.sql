@@ -119,6 +119,9 @@ CREATE INDEX "Task_status_idx" ON "Task"("status");
 CREATE INDEX "Task_dueDate_idx" ON "Task"("dueDate");
 
 -- CreateIndex
+CREATE INDEX "Task_createdById_idx" ON "Task"("createdById");
+
+-- CreateIndex
 CREATE INDEX "TaskLabel_labelId_idx" ON "TaskLabel"("labelId");
 
 -- AddForeignKey

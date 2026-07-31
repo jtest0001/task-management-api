@@ -28,7 +28,7 @@ async function main() {
     const users = await createUsers(tx)
 
     console.log("Seeded users:")
-    console.log(users)
+    console.log(Object.values(users).map((u) => ({ id: u.id, email: u.email })))
 
     const projects = await createProjects(tx, users)
 

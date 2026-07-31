@@ -10,7 +10,7 @@ export const requestIdMiddleware: RequestHandler = (req, res, next) => {
   req.logger = logger.child({
     requestId,
     method: req.method,
-    path: req.originalUrl
+    path: req.path
   })
 
   next()

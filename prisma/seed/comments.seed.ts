@@ -3,7 +3,7 @@ import { SeedUsers } from "./users.seed"
 import { SeedTasks } from "./tasks.seed"
 
 export async function createComments(db: Prisma.TransactionClient, users: SeedUsers, tasks: SeedTasks) {
-  await db.comment.createMany({
+  return await db.comment.createMany({
     data: [
       {
         content: "Let's make sure refresh token rotation follows our security guidelines.",
