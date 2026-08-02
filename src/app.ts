@@ -6,6 +6,7 @@ import { globalErrorHandler } from "./common/middleware/error.middleware"
 import { requestIdMiddleware } from "./common/middleware/request-id.middleware"
 import { authRouter } from "./modules/auth/auth.module"
 import { httpLoggerMiddleware } from "./common/middleware/http-logger.middleware"
+import { projectRouter } from "./modules/project/project.module"
 
 export const createApp = () => {
   // Create app instance
@@ -23,6 +24,7 @@ export const createApp = () => {
     res.json({ message: `Server is up and running on port ${config.server.port}` })
   })
   app.use("/auth", authRouter)
+  app.use("/projects", projectRouter)
 
   // Global error middleware
   app.use(globalErrorHandler)

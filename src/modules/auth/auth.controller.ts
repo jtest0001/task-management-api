@@ -5,14 +5,13 @@ import { UnauthorizedError } from "../../common/errors"
 import { AuthService } from "./auth.service"
 import { LoginDto } from "./validators/login.schema"
 import { RegisterDto } from "./validators/register.schema"
+import { requireUser } from "../../common/utils/require-user"
 
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   me = async (req: Request, res: Response) => {
-    const userId = req.user?.id
-
-    if (!userId) throw new UnauthorizedError()
+    const { id: userId } = requireUser(req)
     const user = await this.authService.me(userId)
 
     res.status(200).json(user)
