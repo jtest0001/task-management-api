@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client"
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 import { ConflictError } from "../../common/errors"
 
 interface SessionData {
@@ -17,16 +16,7 @@ export class SessionRepository {
   }
 
   createSession = async (data: SessionData) => {
-    try {
-      const session = await this.db.session.create({ data })
-      return session
-    } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
-        throw new ConflictError("Session already exists")
-      }
-
-      throw error
-    }
+    return this.db.session.create({ data })
   }
 
   updateSession = async (data: SessionData) => {
