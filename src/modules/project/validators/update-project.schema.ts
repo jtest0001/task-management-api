@@ -1,8 +1,9 @@
 import { z } from "zod"
+import { CreateProjectSchema } from "./create-project.schema"
 
-export const UpdateProjectSchema = z.object({
-  name: z.string().trim().min(1).max(72),
-  description: z.string().trim().max(72).optional()
-})
+export const UpdateProjectSchema = CreateProjectSchema.partial().refine(
+  (data) => Object.values(data).some((value) => value !== undefined),
+  { message: "At least one field must be provided" }
+)
 
 export type UpdateProjectDto = z.infer<typeof UpdateProjectSchema>

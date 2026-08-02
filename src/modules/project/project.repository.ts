@@ -1,4 +1,5 @@
 import { DbClient } from "../../types/prisma.types"
+import { TaskQueryDto } from "../task/validators/task-query.schema"
 import { CreateProjectData, UpdateProjectData } from "./project.types"
 
 export class ProjectRepository {
@@ -34,6 +35,33 @@ export class ProjectRepository {
         members: {
           some: {
             userId
+          }
+        }
+      }
+    })
+  }
+
+  findByProjectIdUserIdWithTasks = (projectId: string, userId: string, query: TaskQueryDto) => {
+    return this.db.project.findFirst({
+      where: {
+        id: projectId,
+        deletedAt: null,
+        members: {
+          some: {
+            userId
+          }
+        }
+      },
+      include: {
+        tasks: {
+          where: {
+            deletedAt: null,
+            ...(query.status && {
+              status: query.status
+            })
+          },
+          orderBy: {
+            createdAt: "desc"
           }
         }
       }
