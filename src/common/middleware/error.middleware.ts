@@ -19,15 +19,18 @@ export const globalErrorHandler: ErrorRequestHandler = (error, req, res, _next) 
   }
 
   if (error instanceof ZodError) {
+    const { fieldErrors, formErrors } = error.flatten()
     reqLogger.error({
       statusCode: 400,
       message: "Validation failed",
-      errors: error.flatten().fieldErrors
+      fieldErrors,
+      formErrors
     })
 
     return res.status(400).json({
       message: "Validation failed",
-      errors: error.flatten().fieldErrors
+      fieldErrors,
+      formErrors
     })
   }
 

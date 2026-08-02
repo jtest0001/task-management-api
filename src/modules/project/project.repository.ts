@@ -1,4 +1,5 @@
 import { DbClient } from "../../types/prisma.types"
+import { TaskQueryDto } from "../task/validators/task-query.schema"
 import { CreateProjectData, UpdateProjectData } from "./project.types"
 
 export class ProjectRepository {

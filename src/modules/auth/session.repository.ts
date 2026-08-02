@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client"
-import { ConflictError } from "../../common/errors"
 
 interface SessionData {
   id: string
