@@ -6,7 +6,7 @@ export const CreateTaskSchema = z.object({
   status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
   assigneeId: z.uuid().optional(),
-  dueDate: z.iso.datetime().optional()
+  dueDate: z.iso.datetime().optional().nullable()
 })
 
 export type CreateTaskDto = z.infer<typeof CreateTaskSchema>

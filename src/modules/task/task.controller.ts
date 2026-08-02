@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { requireUser } from "../../common/utils/require-user"
 import { TaskService } from "./task.service"
-import { TaskQueryDto, TaskQuerySchema } from "./validators/task-query.schema"
+import { TaskQuerySchema } from "./validators/task-query.schema"
 
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}

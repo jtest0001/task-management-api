@@ -5,7 +5,10 @@ import { CreateTaskData, TaskListPropertyQuery, TaskListQuery, TaskListSortQuery
 export class TaskRepository {
   constructor(private readonly db: DbClient) {}
 
-  private buildProjectTasksWhere = (projectId: string, query: TaskListPropertyQuery): Prisma.TaskWhereInput => {
+  private readonly buildProjectTasksWhere = (
+    projectId: string,
+    query: TaskListPropertyQuery
+  ): Prisma.TaskWhereInput => {
     return {
       projectId,
       deletedAt: null,
@@ -27,7 +30,7 @@ export class TaskRepository {
     }
   }
 
-  private buildTaskOrderBy = (query: TaskListSortQuery): Prisma.TaskOrderByWithRelationInput[] => {
+  private readonly buildTaskOrderBy = (query: TaskListSortQuery): Prisma.TaskOrderByWithRelationInput[] => {
     if (query.sortBy === "dueDate") {
       return [
         {

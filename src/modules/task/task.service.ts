@@ -49,7 +49,7 @@ export class TaskService {
     if (!project) throw new NotFoundError("Project not found")
 
     if (dto.assigneeId) {
-      const member = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+      const member = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, dto.assigneeId)
 
       if (!member) throw new BadRequestError("The selected assignee is not a member of this project")
     }
@@ -78,7 +78,14 @@ export class TaskService {
       if (!member) throw new BadRequestError("The selected assignee is not a member of this project")
     }
 
-    const dueDate = dto.dueDate === undefined ? undefined : dto.dueDate === null ? null : new Date(dto.dueDate)
+    let dueDate
+    if (dto.dueDate) {
+      dueDate = new Date(dto.dueDate)
+    }
+    if (dto.dueDate === null) {
+      dueDate = null
+    }
+
     const updateTaskData = omitBy(
       {
         title: dto.title,

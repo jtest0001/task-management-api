@@ -41,33 +41,6 @@ export class ProjectRepository {
     })
   }
 
-  findByProjectIdUserIdWithTasks = (projectId: string, userId: string, query: TaskQueryDto) => {
-    return this.db.project.findFirst({
-      where: {
-        id: projectId,
-        deletedAt: null,
-        members: {
-          some: {
-            userId
-          }
-        }
-      },
-      include: {
-        tasks: {
-          where: {
-            deletedAt: null,
-            ...(query.status && {
-              status: query.status
-            })
-          },
-          orderBy: {
-            createdAt: "desc"
-          }
-        }
-      }
-    })
-  }
-
   create = (data: CreateProjectData, db: DbClient = this.db) => {
     return db.project.create({ data })
   }
