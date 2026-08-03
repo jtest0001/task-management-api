@@ -1,5 +1,4 @@
 import { DbClient } from "../../types/prisma.types"
-import { TaskQueryDto } from "../task/validators/task-query.schema"
 import { CreateProjectData, UpdateProjectData } from "./project.types"
 
 export class ProjectRepository {
@@ -46,12 +45,12 @@ export class ProjectRepository {
   }
 
   update = (projectId: string, data: UpdateProjectData) => {
-    return this.db.project.update({ where: { id: projectId }, data })
+    return this.db.project.update({ where: { id: projectId, deletedAt: null }, data })
   }
 
   softDelete = (projectId: string) => {
     return this.db.project.update({
-      where: { id: projectId },
+      where: { id: projectId, deletedAt: null },
       data: {
         deletedAt: new Date()
       }

@@ -1,10 +1,10 @@
 import { PrismaClient } from "@prisma/client"
-import { NotFoundError } from "../../common/errors/not-found.error"
+import { NotFoundError, ForbiddenError } from "../../common/errors"
 import { ProjectMemberRepository } from "./project-member.repository"
 import { ProjectRepository } from "./project.repository"
 import { CreateProjectDto } from "./validators/create-project.schema"
 import { UpdateProjectDto } from "./validators/update-project.schema"
-import { ForbiddenError } from "../../common/errors/forbidden.error"
+import { CreateProjectData, UpdateProjectData } from "./project.types"
 
 export class ProjectService {
   constructor(
@@ -30,9 +30,14 @@ export class ProjectService {
     return project
   }
 
-  createProject = (createProjectDto: CreateProjectDto, userId: string) => {
+  createProject = (userId: string, createProjectDto: CreateProjectDto) => {
     return this.db.$transaction(async (tx) => {
-      const project = await this.projectRepository.create({ ...createProjectDto, ownerId: userId }, tx)
+      const createProjectData: CreateProjectData = {
+        name: createProjectDto.name,
+        description: createProjectDto.description,
+        ownerId: userId
+      }
+      const project = await this.projectRepository.create(createProjectData, tx)
       const projectMemberData = {
         projectId: project.id,
         role: "OWNER" as const,
@@ -44,9 +49,13 @@ export class ProjectService {
     })
   }
 
-  updateProject = async (updateProjectDto: UpdateProjectDto, userId: string, projectId: string) => {
+  updateProject = async (projectId: string, userId: string, updateProjectDto: UpdateProjectDto) => {
     await this.ensureProjectOwner(projectId, userId)
-    return this.projectRepository.update(projectId, updateProjectDto)
+    const updateProjectData: UpdateProjectData = {
+      name: updateProjectDto.name,
+      description: updateProjectDto.description
+    }
+    return this.projectRepository.update(projectId, updateProjectData)
   }
 
   deleteProject = async (projectId: string, userId: string) => {

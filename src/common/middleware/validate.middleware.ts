@@ -6,7 +6,9 @@ export const validate =
   (schema: ZodObject, target: ValidationTarget = "body"): RequestHandler =>
   (req, _res, next) => {
     try {
-      schema.parse(req[target])
+      const parsed = schema.parse(req[target])
+      req.validated ??= {}
+      req.validated[target] = parsed
       next()
     } catch (error) {
       next(error)

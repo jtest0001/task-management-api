@@ -1,4 +1,5 @@
 import { TaskPriority, TaskStatus } from "@prisma/client"
+import { PaginationQuery } from "../../types/query.types"
 
 export interface CreateTaskData {
   title: string
@@ -23,11 +24,6 @@ export interface UpdateTaskData {
 type SortBy = "createdAt" | "dueDate" | "priority" | "title"
 type SortOrder = "asc" | "desc"
 
-export interface TaskListPaginationQuery {
-  page: number
-  limit: number
-}
-
 export interface TaskListPropertyQuery {
   status?: TaskStatus
   priority?: TaskPriority
@@ -40,4 +36,4 @@ export interface TaskListSortQuery {
   sortOrder: SortOrder
 }
 
-export interface TaskListQuery extends TaskListPaginationQuery, TaskListPropertyQuery, TaskListSortQuery {}
+export interface TaskListQuery extends PaginationQuery, TaskListPropertyQuery, TaskListSortQuery {}

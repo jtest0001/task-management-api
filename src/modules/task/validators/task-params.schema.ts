@@ -1,7 +1,6 @@
 import { z } from "zod"
+import { createUuidParamsSchema } from "../../../common/utils/validators"
 
-export const TaskParamsSchema = z.object({
-  taskId: z.uuid()
-})
+export const TaskParamsSchema = createUuidParamsSchema("taskId")
 
 export type TaskParamsDto = z.infer<typeof TaskParamsSchema>

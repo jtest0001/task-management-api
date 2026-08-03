@@ -44,7 +44,7 @@ export class TaskService {
     return task
   }
 
-  createTask = async (dto: CreateTaskDto, projectId: string, userId: string) => {
+  createTask = async (projectId: string, userId: string, dto: CreateTaskDto) => {
     const project = await this.projectRepository.findByProjectIdUserId(projectId, userId)
     if (!project) throw new NotFoundError("Project not found")
 
@@ -68,7 +68,7 @@ export class TaskService {
     return this.taskRepository.create(createTaskData)
   }
 
-  updateTask = async (dto: UpdateTaskDto, taskId: string, userId: string) => {
+  updateTask = async (taskId: string, userId: string, dto: UpdateTaskDto) => {
     const task = await this.taskRepository.findByTaskIdAndUserId(taskId, userId)
     if (!task) throw new NotFoundError("Task not found")
 
@@ -86,7 +86,7 @@ export class TaskService {
       dueDate = null
     }
 
-    const updateTaskData = omitBy(
+    const updateTaskData: UpdateTaskData = omitBy(
       {
         title: dto.title,
         description: dto.description,
@@ -96,7 +96,7 @@ export class TaskService {
         dueDate
       },
       isUndefined
-    ) as UpdateTaskData
+    )
 
     return this.taskRepository.update(taskId, updateTaskData)
   }

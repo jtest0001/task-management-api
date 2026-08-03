@@ -14,6 +14,11 @@ declare global {
       }
       requestId: string
       logger: Logger
+      validated?: {
+        body?: unknown
+        query?: unknown
+        params?: unknown
+      }
     }
   }
 }

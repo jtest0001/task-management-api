@@ -90,12 +90,12 @@ export class TaskRepository {
   }
 
   update = (taskId: string, data: UpdateTaskData) => {
-    return this.db.task.update({ where: { id: taskId }, data })
+    return this.db.task.update({ where: { id: taskId, deletedAt: null }, data })
   }
 
   softDelete = (taskId: string) => {
     return this.db.task.update({
-      where: { id: taskId },
+      where: { id: taskId, deletedAt: null },
       data: {
         deletedAt: new Date()
       }
