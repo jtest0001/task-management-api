@@ -12,6 +12,6 @@ export interface CreateProjectMemberData {
 }
 
 export interface UpdateProjectData {
-  name: string
+  name?: string
   description?: string
 }

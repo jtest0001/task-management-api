@@ -1,10 +1,9 @@
 import { PrismaClient } from "@prisma/client"
-import { NotFoundError } from "../../common/errors/not-found.error"
+import { NotFoundError, ForbiddenError } from "../../common/errors"
 import { ProjectMemberRepository } from "./project-member.repository"
 import { ProjectRepository } from "./project.repository"
 import { CreateProjectDto } from "./validators/create-project.schema"
 import { UpdateProjectDto } from "./validators/update-project.schema"
-import { ForbiddenError } from "../../common/errors/forbidden.error"
 
 export class ProjectService {
   constructor(
