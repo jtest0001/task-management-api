@@ -21,16 +21,4 @@ export class ProjectMemberRepository {
       }
     })
   }
-
-  delete = (projectId: string, userId: string) => {
-    return this.db.projectMember.update({
-      where: {
-        userId_projectId: {
-          projectId,
-          userId
-        }
-      },
-      data: {}
-    })
-  }
 }

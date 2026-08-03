@@ -18,14 +18,14 @@ export class AuthController {
   }
 
   register = async (req: Request, res: Response) => {
-    const dto = req.body as RegisterDto
+    const dto = req.validated!.body as RegisterDto
     const user = await this.authService.register(dto)
 
     res.status(201).json(user)
   }
 
   login = async (req: Request, res: Response) => {
-    const dto = req.body as LoginDto
+    const dto = req.validated!.body as LoginDto
     const data = await this.authService.login(dto)
     res.cookie(config.jwt.refreshCookieName, data.refreshToken, refreshTokenCookieOptions)
     res.status(200).json({

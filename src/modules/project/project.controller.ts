@@ -25,8 +25,8 @@ export class ProjectController {
 
   createProject = async (req: Request<{}, {}, CreateProjectDto>, res: Response) => {
     const { id: userId } = requireUser(req)
-
-    const project = await this.projectService.createProject(req.body, userId)
+    const dto = req.validated!.body as CreateProjectDto
+    const project = await this.projectService.createProject(userId, dto)
 
     res.status(201).json(project)
   }
@@ -35,7 +35,8 @@ export class ProjectController {
     const { id: userId } = requireUser(req)
 
     const { projectId } = req.params
-    const project = await this.projectService.updateProject(req.body, userId, projectId)
+    const dto = req.validated!.body as UpdateProjectDto
+    const project = await this.projectService.updateProject(projectId, userId, dto)
 
     res.status(200).json(project)
   }

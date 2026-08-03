@@ -45,8 +45,6 @@ export class CommentService {
     }
 
     const comment = await this.commentRepository.create(createCommentData)
-    return {
-      data: comment
-    }
+    return comment
   }
 }
