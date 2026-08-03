@@ -12,21 +12,23 @@ export class CommentRepository {
     }
   }
 
+  private readonly commentSelect = {
+    id: true,
+    content: true,
+    createdAt: true,
+    updatedAt: true,
+    author: {
+      select: {
+        id: true,
+        email: true
+      }
+    }
+  } satisfies Prisma.CommentSelect
+
   findByTaskId = (taskId: string, query: CommentListQuery) => {
     return this.db.comment.findMany({
       where: this.buildTaskCommentsWhere(taskId),
-      select: {
-        id: true,
-        content: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            email: true
-          }
-        }
-      },
+      select: this.commentSelect,
       skip: (query.page - 1) * query.limit,
       take: query.limit,
       orderBy: [
@@ -49,18 +51,7 @@ export class CommentRepository {
   create = (data: CreateCommentData) => {
     return this.db.comment.create({
       data,
-      select: {
-        id: true,
-        content: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            email: true
-          }
-        }
-      }
+      select: this.commentSelect
     })
   }
 
@@ -90,26 +81,15 @@ export class CommentRepository {
 
   update = (commentId: string, data: UpdateCommentData) => {
     return this.db.comment.update({
-      where: { id: commentId },
+      where: { id: commentId, deletedAt: null },
       data,
-      select: {
-        id: true,
-        content: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            email: true
-          }
-        }
-      }
+      select: this.commentSelect
     })
   }
 
   softDelete = (commentId: string) => {
     return this.db.comment.update({
-      where: { id: commentId },
+      where: { id: commentId, deletedAt: null },
       data: {
         deletedAt: new Date()
       }

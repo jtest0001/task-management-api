@@ -86,7 +86,7 @@ export class TaskService {
       dueDate = null
     }
 
-    const updateTaskData = omitBy(
+    const updateTaskData: UpdateTaskData = omitBy(
       {
         title: dto.title,
         description: dto.description,
@@ -96,7 +96,7 @@ export class TaskService {
         dueDate
       },
       isUndefined
-    ) as UpdateTaskData
+    )
 
     return this.taskRepository.update(taskId, updateTaskData)
   }

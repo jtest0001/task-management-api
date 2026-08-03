@@ -1,8 +1,8 @@
 import { Request, Response } from "express"
 import { requireUser } from "../../common/utils/require-user"
 import { TaskService } from "./task.service"
-import { TaskQueryDto, TaskQuerySchema } from "./validators/task-query.schema"
 import { CreateTaskDto } from "./validators/create-task.schema"
+import { TaskQueryDto } from "./validators/task-query.schema"
 import { UpdateTaskDto } from "./validators/update-task.schema"
 
 export class TaskController {
