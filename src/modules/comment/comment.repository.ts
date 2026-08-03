@@ -106,4 +106,13 @@ export class CommentRepository {
       }
     })
   }
+
+  softDelete = (commentId: string) => {
+    return this.db.comment.update({
+      where: { id: commentId },
+      data: {
+        deletedAt: new Date()
+      }
+    })
+  }
 }

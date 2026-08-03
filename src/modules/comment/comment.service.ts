@@ -61,4 +61,12 @@ export class CommentService {
     const updatedComment = await this.commentRepository.update(commentId, updateCommentData)
     return updatedComment
   }
+
+  deleteComment = async (commentId: string, userId: string) => {
+    const comment = await this.commentRepository.findAccessibleById(commentId, userId)
+    if (!comment) throw new NotFoundError("Comment not found")
+    if (comment.authorId !== userId) throw new ForbiddenError("Access denied")
+
+    await this.commentRepository.softDelete(commentId)
+  }
 }

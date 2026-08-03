@@ -31,6 +31,7 @@ export const createCommentRoutes = (controller: CommentController) => {
     validate(CommentContentSchema),
     controller.updateComment
   )
+  router.delete("/comments/:commentId", authenticate, validate(CommentParamsSchema, "params"), controller.deleteComment)
 
   return router
 }

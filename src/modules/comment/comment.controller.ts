@@ -33,4 +33,12 @@ export class CommentController {
 
     res.status(200).json(comment)
   }
+
+  deleteComment = async (req: Request<{ commentId: string }>, res: Response) => {
+    const { id: userId } = requireUser(req)
+    const { commentId } = req.params
+    await this.commentService.deleteComment(commentId, userId)
+
+    res.status(204).send()
+  }
 }
