@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client"
 import { DbClient } from "../../types/prisma.types"
-import { CommentListQuery } from "./comment.types"
+import { CommentListQuery, CreateCommentData } from "./comment.types"
 
 export class CommentRepository {
   constructor(private readonly db: DbClient) {}
@@ -43,6 +43,24 @@ export class CommentRepository {
   countByTaskId = (taskId: string) => {
     return this.db.comment.count({
       where: this.buildTaskCommentsWhere(taskId)
+    })
+  }
+
+  create = (data: CreateCommentData) => {
+    return this.db.comment.create({
+      data,
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        author: {
+          select: {
+            id: true,
+            email: true
+          }
+        }
+      }
     })
   }
 }
