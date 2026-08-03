@@ -1,9 +1,10 @@
+import { ForbiddenError } from "../../common/errors"
 import { NotFoundError } from "../../common/errors/not-found.error"
 import { TaskRepository } from "../task/task.repository"
 import { CommentRepository } from "./comment.repository"
-import { CreateCommentData } from "./comment.types"
+import { CreateCommentData, UpdateCommentData } from "./comment.types"
 import { CommentQueryDto } from "./validators/comment-query.schema"
-import { CreateCommentDto } from "./validators/create-comment.schema"
+import { CommentContentDto } from "./validators/create-comment.schema"
 
 export class CommentService {
   constructor(
@@ -34,7 +35,7 @@ export class CommentService {
     }
   }
 
-  createComment = async (taskId: string, userId: string, dto: CreateCommentDto) => {
+  createComment = async (taskId: string, userId: string, dto: CommentContentDto) => {
     const task = await this.taskRepository.findByTaskIdAndUserId(taskId, userId)
     if (!task) throw new NotFoundError("Task not found")
 
@@ -46,5 +47,18 @@ export class CommentService {
 
     const comment = await this.commentRepository.create(createCommentData)
     return comment
+  }
+
+  updateComment = async (commentId: string, userId: string, dto: CommentContentDto) => {
+    const existingComment = await this.commentRepository.findAccessibleById(commentId, userId)
+    if (!existingComment) throw new NotFoundError("Comment not found")
+    if (existingComment.authorId !== userId) throw new ForbiddenError("Access denied")
+
+    const updateCommentData: UpdateCommentData = {
+      content: dto.content
+    }
+
+    const updatedComment = await this.commentRepository.update(commentId, updateCommentData)
+    return updatedComment
   }
 }

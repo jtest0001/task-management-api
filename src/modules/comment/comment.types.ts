@@ -6,3 +6,7 @@ export interface CreateCommentData {
   authorId: string
   taskId: string
 }
+
+export interface UpdateCommentData {
+  content: string
+}
