@@ -1,13 +1,40 @@
-import { NotFoundError } from "../../common/errors"
+import { ConflictError, ForbiddenError, NotFoundError } from "../../common/errors"
+import { AuthRepository } from "../auth/auth.repository"
 import { ProjectMemberRepository } from "./project-member.repository"
+import { CreateProjectMemberData } from "./project-member.types"
+import { AddMemberDto } from "./validators/add-member.schema"
 
 export class ProjectMemberService {
-  constructor(private readonly projectMemberRepository: ProjectMemberRepository) {}
+  constructor(
+    private readonly projectMemberRepository: ProjectMemberRepository,
+    private readonly authRepository: AuthRepository
+  ) {}
 
   getMembers = async (projectId: string, userId: string) => {
     const membership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
     if (!membership) throw new NotFoundError("Project not found")
 
     return this.projectMemberRepository.findByProjectId(projectId)
+  }
+
+  addMember = async (projectId: string, userId: string, dto: AddMemberDto) => {
+    const currentUserMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+    if (!currentUserMembership) throw new NotFoundError("Project not found")
+    if (currentUserMembership.role !== "OWNER" && currentUserMembership.role !== "ADMIN")
+      throw new ForbiddenError("Access denied")
+
+    const userToBeAdded = await this.authRepository.findByEmail(dto.email)
+    if (!userToBeAdded) throw new NotFoundError("User not found")
+
+    const existingMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userToBeAdded.id)
+    if (existingMembership) throw new ConflictError("User is already a project member")
+
+    const addMemberData = {
+      userId: userToBeAdded.id,
+      role: "MEMBER",
+      projectId
+    } satisfies CreateProjectMemberData
+
+    return this.projectMemberRepository.create(addMemberData)
   }
 }

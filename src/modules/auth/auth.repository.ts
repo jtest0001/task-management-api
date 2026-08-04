@@ -9,11 +9,11 @@ export class AuthRepository {
   constructor(private readonly db: PrismaClient) {}
 
   findById = (id: string) => {
-    return this.db.user.findUnique({ where: { id } })
+    return this.db.user.findUnique({ where: { id, deletedAt: null } })
   }
 
   findByEmail = (email: string) => {
-    return this.db.user.findUnique({ where: { email } })
+    return this.db.user.findUnique({ where: { email, deletedAt: null } })
   }
 
   createUser = async (data: CreateUserData) => {
