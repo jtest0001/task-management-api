@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import { NotFoundError, ForbiddenError } from "../../common/errors"
-import { ProjectMemberRepository } from "./project-member.repository"
+import { ProjectMemberRepository } from "../project-member/project-member.repository"
 import { ProjectRepository } from "./project.repository"
 import { CreateProjectDto } from "./validators/create-project.schema"
 import { UpdateProjectDto } from "./validators/update-project.schema"

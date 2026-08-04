@@ -4,7 +4,7 @@ import { TaskController } from "./task.controller"
 import { TaskRepository } from "./task.repository"
 import { createTaskRoutes } from "./task.routes"
 import { TaskService } from "./task.service"
-import { ProjectMemberRepository } from "../project/project-member.repository"
+import { ProjectMemberRepository } from "../project-member/project-member.repository"
 
 const taskRepository = new TaskRepository(prisma)
 const projectRepository = new ProjectRepository(prisma)
