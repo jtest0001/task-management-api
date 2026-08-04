@@ -101,4 +101,17 @@ export class TaskRepository {
       }
     })
   }
+
+  unassignByProjectIdAndAssigneeId = (projectId: string, assigneeId: string, db = this.db) => {
+    return db.task.updateMany({
+      where: {
+        projectId,
+        assigneeId,
+        deletedAt: null
+      },
+      data: {
+        assigneeId: null
+      }
+    })
+  }
 }

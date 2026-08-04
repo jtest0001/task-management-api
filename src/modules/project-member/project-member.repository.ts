@@ -1,20 +1,34 @@
+import { Prisma } from "@prisma/client"
 import { DbClient } from "../../types/prisma.types"
 import { CreateProjectMemberData } from "./project-member.types"
 
 export class ProjectMemberRepository {
   constructor(private readonly db: DbClient) {}
 
+  private readonly projectMemberSelect: Prisma.ProjectMemberSelect = {
+    role: true,
+    joinedAt: true,
+    user: {
+      select: {
+        id: true,
+        email: true
+      }
+    }
+  }
+
   create = (data: CreateProjectMemberData, db: DbClient = this.db) => {
     return db.projectMember.create({
       data,
-      select: {
-        role: true,
-        joinedAt: true,
-        user: {
-          select: {
-            id: true,
-            email: true
-          }
+      select: this.projectMemberSelect
+    })
+  }
+
+  delete = (projectId: string, userId: string, db = this.db) => {
+    return db.projectMember.delete({
+      where: {
+        userId_projectId: {
+          projectId,
+          userId
         }
       }
     })
@@ -37,16 +51,7 @@ export class ProjectMemberRepository {
           deletedAt: null
         }
       },
-      select: {
-        role: true,
-        joinedAt: true,
-        user: {
-          select: {
-            id: true,
-            email: true
-          }
-        }
-      }
+      select: this.projectMemberSelect
     })
   }
 
@@ -64,10 +69,7 @@ export class ProjectMemberRepository {
           deletedAt: null
         }
       },
-      select: {
-        userId: true,
-        role: true
-      }
+      select: this.projectMemberSelect
     })
   }
 
@@ -82,16 +84,7 @@ export class ProjectMemberRepository {
           deletedAt: null
         }
       },
-      select: {
-        role: true,
-        joinedAt: true,
-        user: {
-          select: {
-            id: true,
-            email: true
-          }
-        }
-      },
+      select: this.projectMemberSelect,
       orderBy: [
         {
           joinedAt: "asc"

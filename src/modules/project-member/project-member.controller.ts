@@ -4,7 +4,7 @@ import { ProjectMemberService } from "./project-member.service"
 import { ProjectParamsDto } from "../project/validators/project-params.schema"
 import { AddMemberDto } from "./validators/add-member.schema"
 import { UpdateMemberRoleDto } from "./validators/update-member-role.schema"
-import { UpdateMemberRoleParamsDto } from "./validators/update-member-role-params.schema"
+import { ProjectMemberParamsDto } from "./validators/project-member-params.schema"
 
 export class ProjectMemberController {
   constructor(private readonly projectMemberService: ProjectMemberService) {}
@@ -30,10 +30,18 @@ export class ProjectMemberController {
 
   updateMemberRole = async (req: Request, res: Response) => {
     const { id: userId } = requireUser(req)
-    const { projectId, memberId } = req.validated!.params as UpdateMemberRoleParamsDto
+    const { projectId, memberId } = req.validated!.params as ProjectMemberParamsDto
     const updateMemberRoleDto = req.validated!.body as UpdateMemberRoleDto
     const member = await this.projectMemberService.updateMemberRole(projectId, userId, memberId, updateMemberRoleDto)
 
     res.status(200).json(member)
+  }
+
+  removeProjectMember = async (req: Request, res: Response) => {
+    const { id: userId } = requireUser(req)
+    const { projectId, memberId } = req.validated!.params as ProjectMemberParamsDto
+    await this.projectMemberService.removeProjectMember(projectId, userId, memberId)
+
+    res.status(204).send()
   }
 }
