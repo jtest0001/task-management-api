@@ -5,7 +5,49 @@ export class ProjectMemberRepository {
   constructor(private readonly db: DbClient) {}
 
   create = (data: CreateProjectMemberData, db: DbClient = this.db) => {
-    return db.projectMember.create({ data })
+    return db.projectMember.create({
+      data,
+      select: {
+        role: true,
+        joinedAt: true,
+        user: {
+          select: {
+            id: true,
+            email: true
+          }
+        }
+      }
+    })
+  }
+
+  updateRole = (projectId: string, userId: string, role: "MEMBER" | "ADMIN") => {
+    return this.db.projectMember.update({
+      data: {
+        role
+      },
+      where: {
+        userId_projectId: {
+          projectId,
+          userId
+        },
+        project: {
+          deletedAt: null
+        },
+        user: {
+          deletedAt: null
+        }
+      },
+      select: {
+        role: true,
+        joinedAt: true,
+        user: {
+          select: {
+            id: true,
+            email: true
+          }
+        }
+      }
+    })
   }
 
   findByProjectIdAndUserId = (projectId: string, userId: string) => {
