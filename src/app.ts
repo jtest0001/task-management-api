@@ -10,6 +10,7 @@ import { projectRouter } from "./modules/project/project.module"
 import { taskRouter } from "./modules/task/task.module"
 import { commentRouter } from "./modules/comment/comment.module"
 import { projectMemberRouter } from "./modules/project-member/project-member.module"
+import { labelRouter } from "./modules/label/label.module"
 
 export const createApp = () => {
   // Create app instance
@@ -31,6 +32,7 @@ export const createApp = () => {
   app.use(taskRouter)
   app.use(commentRouter)
   app.use(projectMemberRouter)
+  app.use(labelRouter)
 
   // Global error middleware
   app.use(globalErrorHandler)
