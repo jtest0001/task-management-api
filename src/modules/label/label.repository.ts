@@ -6,7 +6,12 @@ export class LabelRepository {
 
   findById = (labelId: string) => {
     return this.db.label.findUnique({
-      where: { id: labelId }
+      where: {
+        id: labelId,
+        project: {
+          deletedAt: null
+        }
+      }
     })
   }
 

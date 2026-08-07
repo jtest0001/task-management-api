@@ -36,6 +36,13 @@ export class LabelService {
     const project = await this.projectRepository.findByProjectIdUserId(projectId, userId)
     if (!project) throw new NotFoundError("Project not found")
 
+    const membership = await this.projectMember.findByProjectIdAndUserId(projectId, userId)
+    if (!membership) throw new NotFoundError("Project not found")
+
+    if (membership.role !== "ADMIN" && membership.role !== "OWNER") {
+      throw new ForbiddenError("Access Denied")
+    }
+
     const labelData = {
       name: dto.name,
       color: dto.color,
