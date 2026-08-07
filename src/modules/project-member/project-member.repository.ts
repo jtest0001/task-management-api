@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client"
+import { Prisma, ProjectRole } from "@prisma/client"
 import { DbClient } from "../../types/prisma.types"
 import { CreateProjectMemberData } from "./project-member.types"
 
@@ -23,15 +23,18 @@ export class ProjectMemberRepository {
     })
   }
 
-  delete = (projectId: string, userId: string, db: DbClient = this.db) => {
-    return db.projectMember.delete({
+  deleteMany = async (projectId: string, userId: string, roles: ProjectRole[], db: DbClient = this.db) => {
+    const result = await db.projectMember.deleteMany({
       where: {
-        userId_projectId: {
-          projectId,
-          userId
+        projectId,
+        userId,
+        role: {
+          in: roles
         }
       }
     })
+
+    return result.count
   }
 
   updateRole = (projectId: string, userId: string, role: "MEMBER" | "ADMIN") => {

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, ProjectRole } from "@prisma/client"
 import { ConflictError, ForbiddenError, NotFoundError } from "../../common/errors"
 import { AuthRepository } from "../auth/auth.repository"
 import { ProjectMemberRepository } from "./project-member.repository"
@@ -59,25 +59,36 @@ export class ProjectMemberService {
   }
 
   removeProjectMember = async (projectId: string, userId: string, memberId: string) => {
-    const requesterMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
-    if (!requesterMembership) throw new NotFoundError("Project not found")
+    await this.db.$transaction(
+      async (tx) => {
+        const requesterMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+        if (!requesterMembership) throw new NotFoundError("Project not found")
 
-    const targetMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, memberId)
-    if (!targetMembership) throw new NotFoundError("Member not found")
-    if (targetMembership.role === "OWNER") throw new ForbiddenError("Project owner cannot be removed")
+        const targetMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, memberId)
+        if (!targetMembership) throw new NotFoundError("Member not found")
+        if (targetMembership.role === "OWNER") throw new ForbiddenError("Project owner cannot be removed")
 
-    const requesterCanManageMembers = requesterMembership.role === "OWNER" || requesterMembership.role === "ADMIN"
-    if (!requesterCanManageMembers) {
-      throw new ForbiddenError("Access denied")
-    }
+        const requesterCanManageMembers = requesterMembership.role === "OWNER" || requesterMembership.role === "ADMIN"
+        if (!requesterCanManageMembers) {
+          throw new ForbiddenError("Access denied")
+        }
 
-    if (targetMembership.role === "ADMIN" && requesterMembership.role !== "OWNER") {
-      throw new ForbiddenError("Access denied")
-    }
+        if (targetMembership.role === "ADMIN" && requesterMembership.role !== "OWNER") {
+          throw new ForbiddenError("Access denied")
+        }
 
-    await this.db.$transaction(async (tx) => {
-      await this.taskRepository.unassignByProjectIdAndAssigneeId(projectId, memberId, tx)
-      await this.projectMemberRepository.delete(projectId, memberId, tx)
-    })
+        const allowedTargetRoles: ProjectRole[] =
+          requesterMembership.role === "OWNER" ? ["MEMBER", "ADMIN"] : ["MEMBER"]
+        const deletedCount = await this.projectMemberRepository.deleteMany(projectId, memberId, allowedTargetRoles, tx)
+        if (deletedCount === 0) {
+          throw new ForbiddenError("You cannot remove this project member")
+        }
+
+        await this.taskRepository.unassignByProjectIdAndAssigneeId(projectId, memberId, tx)
+      },
+      {
+        isolationLevel: "Serializable"
+      }
+    )
   }
 }
