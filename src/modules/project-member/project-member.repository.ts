@@ -5,7 +5,7 @@ import { CreateProjectMemberData } from "./project-member.types"
 export class ProjectMemberRepository {
   constructor(private readonly db: DbClient) {}
 
-  private readonly projectMemberSelect: Prisma.ProjectMemberSelect = {
+  private readonly projectMemberSelect = {
     role: true,
     joinedAt: true,
     user: {
@@ -14,7 +14,7 @@ export class ProjectMemberRepository {
         email: true
       }
     }
-  }
+  } satisfies Prisma.ProjectMemberSelect
 
   create = (data: CreateProjectMemberData, db: DbClient = this.db) => {
     return db.projectMember.create({
@@ -23,7 +23,7 @@ export class ProjectMemberRepository {
     })
   }
 
-  delete = (projectId: string, userId: string, db = this.db) => {
+  delete = (projectId: string, userId: string, db: DbClient = this.db) => {
     return db.projectMember.delete({
       where: {
         userId_projectId: {

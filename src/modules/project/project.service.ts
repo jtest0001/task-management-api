@@ -16,7 +16,7 @@ export class ProjectService {
   private async ensureProjectOwner(projectId: string, userId: string) {
     const projectMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
     if (!projectMembership) throw new NotFoundError("Project not found")
-    if (projectMembership.role === "MEMBER") throw new ForbiddenError("Access Denied")
+    if (projectMembership.role !== "OWNER") throw new ForbiddenError("Access Denied")
   }
 
   getProjects = (userId: string) => {
