@@ -1,5 +1,5 @@
-import { ProjectMemberRepository } from "./project-member.repository"
 import { prisma } from "../../common/database/prisma"
+import { ProjectMemberRepository } from "../project-member/project-member.repository"
 import { ProjectController } from "./project.controller"
 import { ProjectRepository } from "./project.repository"
 import { createProjectRoutes } from "./project.routes"

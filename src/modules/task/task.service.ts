@@ -1,6 +1,6 @@
 import { BadRequestError } from "../../common/errors/bad-request.error"
 import { NotFoundError } from "../../common/errors/not-found.error"
-import { ProjectMemberRepository } from "../project/project-member.repository"
+import { ProjectMemberRepository } from "../project-member/project-member.repository"
 import { ProjectRepository } from "../project/project.repository"
 import { TaskRepository } from "./task.repository"
 import { UpdateTaskData } from "./task.types"

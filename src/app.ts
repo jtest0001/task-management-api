@@ -9,6 +9,7 @@ import { httpLoggerMiddleware } from "./common/middleware/http-logger.middleware
 import { projectRouter } from "./modules/project/project.module"
 import { taskRouter } from "./modules/task/task.module"
 import { commentRouter } from "./modules/comment/comment.module"
+import { projectMemberRouter } from "./modules/project-member/project-member.module"
 
 export const createApp = () => {
   // Create app instance
@@ -29,6 +30,7 @@ export const createApp = () => {
   app.use("/projects", projectRouter)
   app.use(taskRouter)
   app.use(commentRouter)
+  app.use(projectMemberRouter)
 
   // Global error middleware
   app.use(globalErrorHandler)

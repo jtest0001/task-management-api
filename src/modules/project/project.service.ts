@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import { NotFoundError, ForbiddenError } from "../../common/errors"
-import { ProjectMemberRepository } from "./project-member.repository"
+import { ProjectMemberRepository } from "../project-member/project-member.repository"
 import { ProjectRepository } from "./project.repository"
 import { CreateProjectDto } from "./validators/create-project.schema"
 import { UpdateProjectDto } from "./validators/update-project.schema"
@@ -16,7 +16,7 @@ export class ProjectService {
   private async ensureProjectOwner(projectId: string, userId: string) {
     const projectMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
     if (!projectMembership) throw new NotFoundError("Project not found")
-    if (projectMembership.role === "MEMBER") throw new ForbiddenError("Access Denied")
+    if (projectMembership.role !== "OWNER") throw new ForbiddenError("Access Denied")
   }
 
   getProjects = (userId: string) => {
