@@ -11,6 +11,7 @@ import { taskRouter } from "./modules/task/task.module"
 import { commentRouter } from "./modules/comment/comment.module"
 import { projectMemberRouter } from "./modules/project-member/project-member.module"
 import { labelRouter } from "./modules/label/label.module"
+import { taskLabelRouter } from "./modules/task-label/task-label.module"
 
 export const createApp = () => {
   // Create app instance
@@ -33,6 +34,7 @@ export const createApp = () => {
   app.use(commentRouter)
   app.use(projectMemberRouter)
   app.use(labelRouter)
+  app.use("/tasks", taskLabelRouter)
 
   // Global error middleware
   app.use(globalErrorHandler)
