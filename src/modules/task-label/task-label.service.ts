@@ -1,6 +1,5 @@
 import { ConflictError, NotFoundError } from "../../common/errors"
 import { LabelRepository } from "../label/label.repository"
-import { ProjectMemberRepository } from "../project-member/project-member.repository"
 import { TaskRepository } from "../task/task.repository"
 import { TaskLabelRepository } from "./task-label.repository"
 

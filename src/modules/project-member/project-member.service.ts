@@ -61,10 +61,10 @@ export class ProjectMemberService {
   removeProjectMember = async (projectId: string, userId: string, memberId: string) => {
     await this.db.$transaction(
       async (tx) => {
-        const requesterMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userId)
+        const requesterMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, userId, tx)
         if (!requesterMembership) throw new NotFoundError("Project not found")
 
-        const targetMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, memberId)
+        const targetMembership = await this.projectMemberRepository.findByProjectIdAndUserId(projectId, memberId, tx)
         if (!targetMembership) throw new NotFoundError("Member not found")
         if (targetMembership.role === "OWNER") throw new ForbiddenError("Project owner cannot be removed")
 
