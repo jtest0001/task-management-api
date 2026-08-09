@@ -58,8 +58,8 @@ export class ProjectMemberRepository {
     })
   }
 
-  findByProjectIdAndUserId = (projectId: string, userId: string) => {
-    return this.db.projectMember.findUnique({
+  findByProjectIdAndUserId = (projectId: string, userId: string, db: DbClient = this.db) => {
+    return db.projectMember.findUnique({
       where: {
         userId_projectId: {
           projectId,

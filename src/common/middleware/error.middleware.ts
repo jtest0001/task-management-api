@@ -56,6 +56,15 @@ export const globalErrorHandler: ErrorRequestHandler = (error, req, res, _next) 
         return res.status(404).json({
           message: "Resource not found"
         })
+      case "P2034":
+        reqLogger.error({
+          statusCode: 409,
+          code: error.code
+        })
+
+        return res.status(409).json({
+          message: "The operation could not be completed due to a concurrent update. Please try again."
+        })
     }
   }
 
