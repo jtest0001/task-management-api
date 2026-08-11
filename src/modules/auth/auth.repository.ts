@@ -13,7 +13,7 @@ export class AuthRepository {
   }
 
   findByEmail = (email: string) => {
-    return this.db.user.findUnique({ where: { email, deletedAt: null } })
+    return this.db.user.findFirst({ where: { email, deletedAt: null } })
   }
 
   createUser = async (data: CreateUserData) => {

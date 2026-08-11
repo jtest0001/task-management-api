@@ -7,7 +7,7 @@ export const SortOrderSchema = z.enum(["asc", "desc"])
 export const TaskQuerySchema = z.object({
   status: z.enum(TaskStatus).optional(),
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
+  limit: z.coerce.number().int().positive().max(100).default(5),
   priority: z.enum(TaskPriority).optional(),
   assigneeId: z.uuid().optional(),
   search: z.preprocess((value) => {

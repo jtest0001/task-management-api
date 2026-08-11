@@ -5,7 +5,7 @@ export const CreateTaskSchema = z.object({
   description: z.string().trim().max(1000).optional(),
   status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).optional(),
   priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
-  assigneeId: z.uuid().optional(),
+  assigneeId: z.uuid().optional().nullable(),
   dueDate: z.iso.datetime().optional().nullable()
 })
 

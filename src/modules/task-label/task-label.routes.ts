@@ -10,13 +10,13 @@ export const createTaskLabelRoutes = (taskLabelController: TaskLabelController) 
   router.post(
     "/:taskId/labels/:labelId",
     authenticate,
-    validate(TaskLabelParamsSchema),
+    validate(TaskLabelParamsSchema, "params"),
     taskLabelController.attachLabelToTask
   )
   router.delete(
     "/:taskId/labels/:labelId",
     authenticate,
-    validate(TaskLabelParamsSchema),
+    validate(TaskLabelParamsSchema, "params"),
     taskLabelController.detachLabelFromTask
   )
 
