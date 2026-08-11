@@ -8,7 +8,7 @@ export interface CreateTaskData {
   description?: string
   status?: TaskStatus
   priority?: TaskPriority
-  assigneeId?: string
+  assigneeId?: string | null
   dueDate?: Date | null
 }
 

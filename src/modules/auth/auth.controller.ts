@@ -6,6 +6,7 @@ import { AuthService } from "./auth.service"
 import { LoginDto } from "./validators/login.schema"
 import { RegisterDto } from "./validators/register.schema"
 import { requireUser } from "../../common/utils/require-user"
+import { RefreshDto } from "./validators/refresh.schema"
 
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -35,7 +36,8 @@ export class AuthController {
   }
 
   refresh = async (req: Request, res: Response) => {
-    const refreshToken = req.cookies[config.jwt.refreshCookieName]
+    const cookieStore = req.validated!.cookies as RefreshDto
+    const refreshToken = cookieStore[config.jwt.refreshCookieName]
 
     if (!refreshToken) throw new UnauthorizedError()
     const data = await this.authService.refresh(refreshToken)
