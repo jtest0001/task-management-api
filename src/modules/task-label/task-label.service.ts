@@ -10,6 +10,13 @@ export class TaskLabelService {
     private readonly labelRepository: LabelRepository
   ) {}
 
+  getTaskLabels = async (taskId: string, userId: string) => {
+    const task = await this.taskRepository.findByTaskIdAndUserId(taskId, userId)
+    if (!task) throw new NotFoundError("Task not found")
+
+    return this.labelRepository.findByTaskId(taskId)
+  }
+
   attachLabelToTask = async (taskId: string, userId: string, labelId: string) => {
     const task = await this.taskRepository.findByTaskIdAndUserId(taskId, userId)
     if (!task) throw new NotFoundError("Task not found")
