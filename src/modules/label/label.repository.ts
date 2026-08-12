@@ -29,6 +29,19 @@ export class LabelRepository {
     })
   }
 
+  findByTaskId = (taskId: string) => {
+    return this.db.label.findMany({
+      where: {
+        tasks: {
+          some: { taskId }
+        }
+      },
+      orderBy: {
+        name: "asc"
+      }
+    })
+  }
+
   create = (data: CreateLabelData) => {
     return this.db.label.create({ data })
   }
