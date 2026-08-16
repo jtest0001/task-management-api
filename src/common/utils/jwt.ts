@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken"
 import { config } from "../config/env.config"
 import { UnauthorizedError } from "../errors"
+import { randomUUID } from "node:crypto"
 
 interface AccessTokenPayload {
   sub: string
@@ -37,7 +38,7 @@ export const verifyAccessToken = (token: string) => {
 
 export const generateRefreshToken = (payload: RefreshTokenPayload) => {
   try {
-    const refreshToken = jwt.sign(payload, config.jwt.refreshSecret, {
+    const refreshToken = jwt.sign({ ...payload, jti: randomUUID() }, config.jwt.refreshSecret, {
       expiresIn: "7d"
     })
 
