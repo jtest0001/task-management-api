@@ -2,10 +2,11 @@ import { randomUUID } from "node:crypto"
 import { ConflictError, UnauthorizedError } from "../../common/errors"
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../common/utils/jwt"
 import { comparePasswords, hashPassword } from "../../common/utils/password"
+import { compareTokens, hashToken } from "../../common/utils/token-hash"
 import { AuthRepository } from "./auth.repository"
+import { SessionRepository } from "./session.repository"
 import { LoginDto } from "./validators/login.schema"
 import { RegisterDto } from "./validators/register.schema"
-import { SessionRepository } from "./session.repository"
 
 export class AuthService {
   constructor(
@@ -61,7 +62,7 @@ export class AuthService {
     })
 
     // Create session
-    const hashedRefreshToken = await hashPassword(refreshToken)
+    const hashedRefreshToken = hashToken(refreshToken)
     await this.sessionRepository.createSession({
       id: sessionId,
       hashedRefreshToken,
@@ -99,7 +100,7 @@ export class AuthService {
     }
 
     // Check if tokens match
-    const isTokenValid = await comparePasswords(refreshToken, session.hashedRefreshToken)
+    const isTokenValid = compareTokens(refreshToken, session.hashedRefreshToken)
     if (!isTokenValid) {
       await this.sessionRepository.deleteBySessionId(session.id)
       throw new UnauthorizedError()
@@ -111,7 +112,7 @@ export class AuthService {
       sub: user.id,
       sid
     })
-    const hashedRefreshToken = await hashPassword(newRefreshToken)
+    const hashedRefreshToken = hashToken(newRefreshToken)
 
     // Update session
     await this.sessionRepository.updateSession({

@@ -18,6 +18,9 @@ const loadConfig = () => {
     },
     client: {
       url: env.FRONT_END_URL
+    },
+    redis: {
+      url: env.REDIS_URL
     }
   })
 }
