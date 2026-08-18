@@ -26,11 +26,26 @@
 
 ## Deployment (Vercel FE + Render/Railway BE, Neon Postgres, Upstash Redis)
 
-- [ ] VERIFY (not yet confirmed) `app.set("trust proxy", 2)` in `app.ts`. The value 2 was reasoned
-      from the expected topology (Vercel edge -> Render), not measured. If the real hop count
-      differs, `req.ip` resolves to a proxy IP and every user shares one rate-limit bucket — the
-      exact bug `trust proxy` exists to prevent, and it fails silently. Once deployed, log
-      `req.ip` and `x-forwarded-for` on a real request and confirm `req.ip` is the client address.
+- [ ] VERIFY `app.set("trust proxy", 2)` on the PROXIED path. Confirmed working for DIRECT
+      requests (Postman -> Render produced a `global<public-ip>` key in Upstash, not a private
+      one). Not yet confirmed through Vercel, which is a different `x-forwarded-for` chain
+      (two hops instead of one) and is the path real users take. Test once the client is live:
+      `curl -s https://<app>.vercel.app/auth/me`, then check the new Upstash key carries your
+      public IP. A private IP or the `::/56` form means every user shares one bucket.
+      Note: `global10.x.x.x` keys are the platform health checker and are expected/harmless;
+      `auth::/56` came from local dev, where there is no `x-forwarded-for` so `req.ip` is `::`.
+- [ ] Rate-limiter bypass via spoofed `x-forwarded-for` (accepted risk, low severity). `trust
+      proxy 2` is required for the Vercel path, but on a DIRECT request to the Render URL it
+      trusts more forwarded entries than exist, so a caller can set the header and pick a fresh
+      bucket per request — defeating `authLimiter` on `/auth/login`. Inherent to the setup:
+      Render's URL is public and IP allowlisting is not on the free tier. Impact is limited to
+      throttling evasion (no data exposure). Revisit if the app ever holds real user data.
+- [ ] `/logout` and `/logout-all` have no rate limiter, unlike `/refresh`. Harmless under
+      `SameSite=Lax`; only matters if the cookie ever moves to `SameSite=None`.
+- [ ] `redis.config.ts` `retryStrategy` never gives up — it always returns a delay (capped at
+      2s), so an unreachable Redis reconnects forever. Each attempt costs handshake commands
+      against the Upstash monthly quota, so a misconfigured URL burns quota silently rather
+      than failing loudly. Consider returning `null` after N attempts to stop retrying.
 - [ ] `/logout` and `/logout-all` have no rate limiter, unlike `/refresh`. Harmless under
       `SameSite=Lax`; only matters if the cookie ever moves to `SameSite=None`.
 - [ ] Render free tier has no shell and no `preDeployCommand`, so migrations must be run from a
