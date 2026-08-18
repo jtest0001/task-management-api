@@ -20,6 +20,7 @@ export const createApp = () => {
   const app = express()
 
   // middlewares
+  app.set("trust proxy", 2)
   app.use(corsConfig)
   app.use(helmet())
   app.use(globalLimiter)
