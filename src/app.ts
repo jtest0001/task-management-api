@@ -33,13 +33,15 @@ export const createApp = () => {
   app.get("/health", (_req, res) => {
     res.json({ message: `Server is up and running on port ${config.server.port}` })
   })
-  app.use("/auth", authRouter)
-  app.use("/projects", projectRouter)
-  app.use(taskRouter)
-  app.use(commentRouter)
-  app.use(projectMemberRouter)
-  app.use(labelRouter)
-  app.use("/tasks", taskLabelRouter)
+  const apiRouter = express.Router()
+  apiRouter.use("/auth", authRouter)
+  apiRouter.use("/projects", projectRouter)
+  apiRouter.use(taskRouter)
+  apiRouter.use(commentRouter)
+  apiRouter.use(projectMemberRouter)
+  apiRouter.use(labelRouter)
+  apiRouter.use("/tasks", taskLabelRouter)
+  app.use("/api", apiRouter)
 
   // Global error middleware
   app.use(globalErrorHandler)
