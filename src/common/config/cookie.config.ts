@@ -1,10 +1,12 @@
 import { CookieOptions } from "express"
 import { config } from "./env.config"
 
+const isProduction = config.server.nodeEnv === "production"
+
 export const refreshTokenCookieOptions: CookieOptions = {
   httpOnly: true,
-  secure: config.server.nodeEnv === "production", // only send cookie in https network
-  sameSite: "lax", // if client and server are cross origin, use 'none'
+  secure: isProduction,
+  sameSite: "lax",
   path: "/auth",
   maxAge: 7 * 24 * 60 * 60 * 1000
 }

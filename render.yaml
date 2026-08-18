@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: task-management-api
+    runtime: node
+    plan: free
+    region: singapore
+    branch: main
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REFRESH_TOKEN_COOKIE_NAME
+        value: refresh_token
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      # All set manually in the dashboard — external services + the Vercel URL.
+      - key: DATABASE_URL # Neon POOLED endpoint (-pooler), + connect_timeout=10
+        sync: false
+      - key: DIRECT_DB_URL # Neon DIRECT endpoint (no -pooler) — migrations only
+        sync: false
+      - key: REDIS_URL # Upstash rediss:// URL
+        sync: false
+      # Vercel URL. Normalised to a bare origin at boot (env.schema.ts), so a trailing
+      # slash, a default port, host casing, or a stray path are all tolerated.
+      - key: FRONT_END_URL
+        sync: false
