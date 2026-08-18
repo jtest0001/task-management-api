@@ -34,20 +34,41 @@
       public IP. A private IP or the `::/56` form means every user shares one bucket.
       Note: `global10.x.x.x` keys are the platform health checker and are expected/harmless;
       `auth::/56` came from local dev, where there is no `x-forwarded-for` so `req.ip` is `::`.
-- [ ] Rate-limiter bypass via spoofed `x-forwarded-for` (accepted risk, low severity). `trust
-      proxy 2` is required for the Vercel path, but on a DIRECT request to the Render URL it
-      trusts more forwarded entries than exist, so a caller can set the header and pick a fresh
-      bucket per request — defeating `authLimiter` on `/auth/login`. Inherent to the setup:
-      Render's URL is public and IP allowlisting is not on the free tier. Impact is limited to
-      throttling evasion (no data exposure). Revisit if the app ever holds real user data.
+- [ ] The API is effectively a PUBLIC API — accepted, revisit on the triggers below. The Render
+      URL is reachable by anyone (and published in TLS Certificate Transparency logs regardless
+      of what the repo contains), so a third party can point their own Vercel proxy at it and
+      run a fully working clone against the SAME Neon database. Deliberately not treated as a
+      defect: authorization is enforced per-request in the services (membership/role checks,
+      queries scoped through `project.members.some({ userId })`), so an unauthenticated caller
+      reaches nothing, and a registered one sees only their own data. CORS cannot help here at
+      all — a server-side proxy is not a browser and simply does not participate in CORS.
+      Real (non-breach) consequences:
+        * Resource abuse — a third party burns OUR Neon storage / Upstash commands / Render
+          compute. Most realistic harm; on free tiers it caps out rather than billing.
+        * Mass registration — `/auth/register` is public and `authLimiter` is keyed on `req.ip`,
+          which is spoofable via `x-forwarded-for` on the direct path (see below), so the
+          throttle is evadable and the user table can be bloated.
+        * Clone phishing — a proxied clone actually works, making a credential-harvesting page
+          more convincing. Only affects users lured to the attacker's domain; their proxy sees
+          passwords, tokens and refresh cookies in transit. Users on our own domain unaffected.
+      Sub-item — rate-limiter bypass via spoofed `x-forwarded-for`: `trust proxy 2` is required
+      for the Vercel path, but on a DIRECT request it trusts more forwarded entries than exist,
+      so a caller can pick a fresh bucket per request.
+      No clean mitigation at the current tier. The real fix is a shared secret the proxy injects
+      and the API requires, which `vercel.json` rewrites cannot do (they add no request headers)
+      — it needs Vercel Middleware doing the proxying. Alternatives: IP allowlist (not on Render
+      free), or Cloudflare in front.
+      REVISIT WHEN: real users with data they'd miss; moving off free tier (abuse becomes money —
+      the biggest single change); attaching a custom domain or promoting it publicly; or storing
+      any PII, uploads, or payment details.
+      CHEAPEST INTERIM CONTROL: usage alerts on Upstash and Neon. Abuse shows up as a quota curve
+      well before anything else surfaces it.
 - [ ] `/logout` and `/logout-all` have no rate limiter, unlike `/refresh`. Harmless under
       `SameSite=Lax`; only matters if the cookie ever moves to `SameSite=None`.
 - [ ] `redis.config.ts` `retryStrategy` never gives up — it always returns a delay (capped at
       2s), so an unreachable Redis reconnects forever. Each attempt costs handshake commands
       against the Upstash monthly quota, so a misconfigured URL burns quota silently rather
       than failing loudly. Consider returning `null` after N attempts to stop retrying.
-- [ ] `/logout` and `/logout-all` have no rate limiter, unlike `/refresh`. Harmless under
-      `SameSite=Lax`; only matters if the cookie ever moves to `SameSite=None`.
 - [ ] Render free tier has no shell and no `preDeployCommand`, so migrations must be run from a
       local machine: `npx prisma migrate deploy` (picks up `DIRECT_DB_URL` via `prisma.config.ts`).
       There is no guardrail between a laptop and the production Neon branch — be deliberate.
